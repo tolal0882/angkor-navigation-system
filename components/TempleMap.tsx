@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap, Polyline } from "react-leaflet";
 import L from "leaflet";
 import { Temple } from "@/types/temple";
 import { CATEGORY_STYLES } from "@/lib/categoryStyles";
@@ -39,17 +39,34 @@ interface TempleMapProps {
   temples: Temple[];
   selectedId: string | null;
   onSelect: (id: string) => void;
+  routeCoords?: [number, number][];
 }
 
 export default function TempleMap({
   temples,
   selectedId,
   onSelect,
+  routeCoords = [],
 }: TempleMapProps) {
   const selectedTemple = useMemo(
     () => temples.find((t) => t.id === selectedId) ?? null,
     [temples, selectedId]
   );
+
+  function RouteFitter({ coords }: { coords: [number, number][] }) {
+    const map = useMap();
+    useEffect(() => {
+      if (coords && coords.length > 0) {
+        const latlngs = coords.map((c) => [c[0], c[1]] as [number, number]);
+        try {
+          map.fitBounds(latlngs as any, { padding: [40, 40] });
+        } catch (e) {
+          // ignore
+        }
+      }
+    }, [coords, map]);
+    return null;
+  }
 
   return (
     <MapContainer
@@ -82,6 +99,12 @@ export default function TempleMap({
           </Popup>
         </Marker>
       ))}
+      {routeCoords && routeCoords.length > 0 && (
+        <>
+          <Polyline positions={routeCoords.map((c) => [c[0], c[1]])} pathOptions={{ color: "#e2b94a", weight: 4 }} />
+          <RouteFitter coords={routeCoords} />
+        </>
+      )}
       <FlyToSelection temple={selectedTemple} />
     </MapContainer>
   );

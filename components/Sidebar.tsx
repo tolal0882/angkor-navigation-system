@@ -9,12 +9,31 @@ interface SidebarProps {
   temples: Temple[];
   selectedId: string | null;
   onSelect: (id: string) => void;
+  // new props for routing controls
+  mode: string;
+  onModeChange: (m: string) => void;
+  useCurrentLocation: boolean;
+  onUseCurrentLocationChange: (v: boolean) => void;
+  startId: string | null;
+  onStartChange: (id: string | null) => void;
+  endId: string | null;
+  onEndChange: (id: string | null) => void;
+  onRunRoute: () => void;
 }
 
 export default function Sidebar({
   temples,
   selectedId,
   onSelect,
+  mode,
+  onModeChange,
+  useCurrentLocation,
+  onUseCurrentLocationChange,
+  startId,
+  onStartChange,
+  endId,
+  onEndChange,
+  onRunRoute,
 }: SidebarProps) {
   const [query, setQuery] = useState("");
 
@@ -54,6 +73,71 @@ export default function Sidebar({
           {temples.length} temples mapped across four zones
         </p>
       </header>
+
+      {/* Controls: tour mode + start/end inputs */}
+      <div className="px-5 py-3 border-b border-white/10 space-y-2">
+        <select
+          value={mode}
+          onChange={(e) => onModeChange(e.target.value)}
+          className="w-full rounded-md bg-stone-ink-soft border border-white/10 px-3 py-2 text-sm"
+        >
+          <option value="visit_all">Visit all temples</option>
+          <option value="recommend">Recommend</option>
+          <option value="shortest">Find shortest path</option>
+          <option value="nearby">Nearby</option>
+          <option value="custom">Custom tour</option>
+        </select>
+
+        <div className="flex items-center gap-2">
+          <input
+            id="use-current"
+            type="checkbox"
+            checked={useCurrentLocation}
+            onChange={(e) => onUseCurrentLocationChange(e.target.checked)}
+          />
+          <label htmlFor="use-current" className="text-xs">
+            Use current location as start
+          </label>
+        </div>
+
+        <div className="flex gap-2">
+          <select
+            value={startId ?? ""}
+            onChange={(e) => onStartChange(e.target.value || null)}
+            className="flex-1 rounded-md bg-stone-ink-soft border border-white/10 px-2 py-2 text-sm"
+          >
+            <option value="">Start: selected temple</option>
+            {temples.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.name}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={endId ?? ""}
+            onChange={(e) => onEndChange(e.target.value || null)}
+            className="w-36 rounded-md bg-stone-ink-soft border border-white/10 px-2 py-2 text-sm"
+          >
+            <option value="">End (optional)</option>
+            {temples.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex justify-end">
+          <button
+            onClick={() => onRunRoute()}
+            className="rounded-md bg-gold-leaf px-3 py-1 text-sm font-semibold text-stone-ink"
+          >
+            Run
+          </button>
+        </div>
+
+      </div>
 
       <div className="px-5 py-3 border-b border-white/10">
         <input
