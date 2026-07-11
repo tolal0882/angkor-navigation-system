@@ -50,6 +50,8 @@ Open http://localhost:3000.
 
 ## Project structure
 
+
+
 ```
 app/
   layout.tsx        # fonts + global shell
@@ -73,3 +75,40 @@ Palette and type choices are documented in `app/globals.css` (`@theme`
 block): laterite red-brown, sandstone cream, moss green, and gold-leaf accent,
 paired with a `Spectral` display serif and `Inter` body text — meant to read
 like carved stone and gilt rather than a generic dashboard.
+
+## Data structures (new)
+
+Implemented in `lib/`:
+
+- `lib/hashTable.ts`: a simple chained hash table for storing and searching `Temple` objects by key (`id` or any string). Useful for O(1) average lookup and partial name searches.
+- `lib/categoryTree.ts`: a small tree structure that organizes temples by category (and can be extended to subgroups). Provides insertion, find, and traversal helpers.
+- `lib/graph.ts`: adjacency-list `Graph` with Dijkstra's shortest-path implementation (returns path + total distance).
+
+Quick usage examples (node/TS runtime):
+
+```ts
+import HashTable from './lib/hashTable'
+import CategoryTree from './lib/categoryTree'
+import Graph from './lib/graph'
+import temples from './data/temples.json'
+
+const ht = new HashTable()
+for (const t of temples) ht.set(t.id, t)
+console.log(ht.searchByName('angkor'))
+
+const tree = CategoryTree.fromList(temples)
+console.log(tree.traverse())
+
+const g = new Graph()
+// populate edges using distance.ts or custom connections
+g.addEdge('temple-1', 'temple-2', 1.2)
+const route = g.shortestPath('temple-1', 'temple-2')
+console.log(route)
+```
+
+Files:
+
+- [lib/hashTable.ts](lib/hashTable.ts)
+- [lib/categoryTree.ts](lib/categoryTree.ts)
+- [lib/graph.ts](lib/graph.ts)
+
